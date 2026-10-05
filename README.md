@@ -5,7 +5,6 @@ This repository contains the source for the IETF Internet-Draft:
 
 * **Author:** Lee Campbell (`leecam@google.com`), Google
 * **Source (`kramdown-rfc`):** [`draft-campbell-crdc.md`](draft-campbell-crdc.md)
-* **Readable Markdown Copy:** [`draft-campbell-crdc-00.md`](draft-campbell-crdc-00.md)
 
 ## Abstract
 
@@ -15,7 +14,7 @@ This specification defines a credential-format-agnostic mechanism for Conditiona
 
 ## Building the IETF Draft Locally
 
-This repository uses [`kramdown-rfc`](https://github.com/cabo/kramdown-rfc) and [`xml2rfc`](https://pypi.org/project/xml2rfc/) to compile the Markdown source into validated IETF RFCXML v3 (`.xml`), plain text (`.txt`), and HTML (`.html`).
+This repository uses [`kramdown-rfc`](https://github.com/cabo/kramdown-rfc), [`xml2rfc`](https://pypi.org/project/xml2rfc/), and [`pandoc`](https://pandoc.org/) to compile the `kramdown-rfc` source into validated IETF RFCXML v3 (`.xml`), plain text (`.txt`), HTML (`.html`), and standalone readable GitHub-Flavored Markdown (`draft-campbell-crdc-00.md`).
 
 ```bash
 gem install kramdown-rfc2629
@@ -28,5 +27,6 @@ make all check
 On every push and pull request, the [`.github/workflows/ietf-draft.yml`](.github/workflows/ietf-draft.yml) workflow:
 1. Compiles `draft-campbell-crdc.md` into RFCXML v3 (`draft-campbell-crdc-00.xml`).
 2. Validates the XML structure and renders `draft-campbell-crdc-00.txt` and `draft-campbell-crdc-00.html` using `xml2rfc --v3`.
-3. Runs IETF `idnits` checks.
-4. Publishes the `.xml`, `.txt`, and `.html` build artifacts (ready for direct upload to [IETF Datatracker Submit](https://datatracker.ietf.org/submit/)) and deploys the Editor's Copy to GitHub Pages.
+3. Converts the rendered specification into standalone readable GitHub-Flavored Markdown (`draft-campbell-crdc-00.md`) using `pandoc`.
+4. Runs IETF `idnits` checks.
+5. Uploads the `.xml`, `.txt`, `.html`, and readable `.md` build artifacts (ready for direct upload to [IETF Datatracker Submit](https://datatracker.ietf.org/submit/)).

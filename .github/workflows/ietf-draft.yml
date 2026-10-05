@@ -11,12 +11,10 @@ on:
 
 permissions:
   contents: write
-  pages: write
-  id-token: write
 
 jobs:
   build-ietf-draft:
-    name: Build RFC XML, TXT, HTML & Run idnits
+    name: Build RFC XML, TXT, HTML, Readable MD & Run idnits
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -34,13 +32,13 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install IETF Tooling (kramdown-rfc, xml2rfc, idnits)
+      - name: Install IETF Tooling (kramdown-rfc, xml2rfc, libxml2-utils, pandoc, idnits)
         run: |
           gem install kramdown-rfc2629
           pip install --upgrade pip xml2rfc
-          sudo apt-get update && sudo apt-get install -y xmllint curl
-          curl -sSL https://raw.githubusercontent.com/ietf-tools/idnits/main/idnits -o /usr/local/bin/idnits
-          chmod +x /usr/local/bin/idnits
+          sudo apt-get update && sudo apt-get install -y libxml2-utils pandoc curl
+          sudo curl -sSL https://raw.githubusercontent.com/ietf-tools/idnits/main/idnits -o /usr/local/bin/idnits
+          sudo chmod +x /usr/local/bin/idnits
 
       - name: Determine Draft Name and Revision
         id: meta
@@ -54,18 +52,19 @@ jobs:
           echo "base_name=${BASE_NAME}" >> "$GITHUB_OUTPUT"
           echo "doc_name=${DOC_NAME}" >> "$GITHUB_OUTPUT"
 
-      - name: Generate RFCXML v3 and Validate
+      - name: Generate RFCXML v3, TXT, HTML, and Readable Markdown
         run: |
-          sed "s/draft-campbell-crdc-latest/${{ steps.meta.outputs.doc_name }}/g" draft-campbell-crdc.md > "${{ steps.meta.outputs.doc_name }}.md"
-          kramdown-rfc "${{ steps.meta.outputs.doc_name }}.md" > "${{ steps.meta.outputs.doc_name }}.xml"
+          sed "s/draft-campbell-crdc-latest/${{ steps.meta.outputs.doc_name }}/g" draft-campbell-crdc.md > "/tmp/${{ steps.meta.outputs.doc_name }}-kramdown.md"
+          kramdown-rfc "/tmp/${{ steps.meta.outputs.doc_name }}-kramdown.md" > "${{ steps.meta.outputs.doc_name }}.xml"
           xmllint --noout "${{ steps.meta.outputs.doc_name }}.xml"
           xml2rfc --v3 --text --html "${{ steps.meta.outputs.doc_name }}.xml"
+          pandoc -f html -t gfm --wrap=none "${{ steps.meta.outputs.doc_name }}.html" -o "${{ steps.meta.outputs.doc_name }}.md"
 
       - name: Run IETF idnits Check
         run: |
           idnits "${{ steps.meta.outputs.doc_name }}.txt" || true
 
-      - name: Upload Built IETF Draft Artifacts (XML, TXT, HTML)
+      - name: Upload Built IETF Draft Artifacts (XML, TXT, HTML, MD)
         uses: actions/upload-artifact@v4
         with:
           name: ${{ steps.meta.outputs.doc_name }}
@@ -73,30 +72,4 @@ jobs:
             ${{ steps.meta.outputs.doc_name }}.xml
             ${{ steps.meta.outputs.doc_name }}.txt
             ${{ steps.meta.outputs.doc_name }}.html
-
-      - name: Prepare GitHub Pages Editor's Copy
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: |
-          mkdir -p _site
-          cp "${{ steps.meta.outputs.doc_name }}.html" _site/index.html
-          cp "${{ steps.meta.outputs.doc_name }}.txt" _site/
-          cp "${{ steps.meta.outputs.doc_name }}.xml" _site/
-
-      - name: Upload Pages Artifact
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: _site
-
-  deploy-pages:
-    name: Deploy Editor's Copy to GitHub Pages
-    needs: build-ietf-draft
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+            ${{ steps.meta.outputs.doc_name }}.md

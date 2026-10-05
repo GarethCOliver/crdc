@@ -1,0 +1,5 @@
+_site/
+*.xml
+*.txt
+*.html
+.refcache/

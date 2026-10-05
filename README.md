@@ -1,0 +1,32 @@
+# Conditionally Released Digital Credentials (CRDC)
+
+This repository contains the source for the IETF Internet-Draft:
+**Conditionally Released Digital Credentials** (`draft-campbell-crdc`).
+
+* **Author:** Lee Campbell (`leecam@google.com`), Google
+* **Source (`kramdown-rfc`):** [`draft-campbell-crdc.md`](draft-campbell-crdc.md)
+* **Readable Markdown Copy:** [`draft-campbell-crdc-00.md`](draft-campbell-crdc-00.md)
+
+## Abstract
+
+Digital Credentials (DCs), such as Selective Disclosure for JSON Web Tokens (SD-JWTs) and ISO/IEC 18013-5 mobile documents (mdocs), are issued by Issuers to Credential Managers (wallets) held by Holders. Verifiers can then request these credentials from the Credential Manager using presentation protocols such as OpenID for Verifiable Presentations (OpenID4VP) and browser APIs such as the W3C Digital Credentials API. A foundational privacy property of this three-party model is Issuer unlinkability: the Issuer does not learn when, where, or to which Verifier a given credential is presented. However, in many commercial and regulatory ecosystems, Issuers require a mechanism to charge or authorize Verifiers for credential presentations.
+
+This specification defines a credential-format-agnostic mechanism for Conditionally Released Digital Credentials (CRDCs). During presentation, the Credential Manager encrypts a standard Digital Credential presentation using a one-time ephemeral Content Encryption Key (CEK) to produce a Releasable Credential, and encrypts the CEK under an Issuer Release Public Key alongside Issuer routing metadata to produce a Release Token. The Verifier presents the Release Token to the Issuer's Release Endpoint to authorize (and optionally bill for) the presentation and obtain the decrypted CEK, which the Verifier then uses to decrypt and validate the underlying Digital Credential—all while strictly preserving the privacy property that the Issuer never learns which Holder is presenting the credential.
+
+## Building the IETF Draft Locally
+
+This repository uses [`kramdown-rfc`](https://github.com/cabo/kramdown-rfc) and [`xml2rfc`](https://pypi.org/project/xml2rfc/) to compile the Markdown source into validated IETF RFCXML v3 (`.xml`), plain text (`.txt`), and HTML (`.html`).
+
+```bash
+gem install kramdown-rfc2629
+pip install xml2rfc
+make all check
+```
+
+## GitHub Actions CI & Datatracker Submission
+
+On every push and pull request, the [`.github/workflows/ietf-draft.yml`](.github/workflows/ietf-draft.yml) workflow:
+1. Compiles `draft-campbell-crdc.md` into RFCXML v3 (`draft-campbell-crdc-00.xml`).
+2. Validates the XML structure and renders `draft-campbell-crdc-00.txt` and `draft-campbell-crdc-00.html` using `xml2rfc --v3`.
+3. Runs IETF `idnits` checks.
+4. Publishes the `.xml`, `.txt`, and `.html` build artifacts (ready for direct upload to [IETF Datatracker Submit](https://datatracker.ietf.org/submit/)) and deploys the Editor's Copy to GitHub Pages.

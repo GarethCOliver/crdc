@@ -5,6 +5,11 @@ This repository contains the source for the IETF Internet-Draft:
 
 * **Author:** Lee Campbell (`leecam@google.com`), Google
 * **Source (`kramdown-rfc`):** [`draft-campbell-crdc.md`](draft-campbell-crdc.md)
+* **Latest Generated Specification (from last check-in):**
+  * **HTML:** [`draft-campbell-crdc-00.html` (GitHub Pages)](https://leecam.github.io/crdc/draft-campbell-crdc-00.html) · [View Source](https://github.com/leecam/crdc/blob/gh-pages/draft-campbell-crdc-00.html)
+  * **Readable Markdown:** [`draft-campbell-crdc-00.md`](https://github.com/leecam/crdc/blob/gh-pages/draft-campbell-crdc-00.md)
+  * **Plain Text (IETF RFC):** [`draft-campbell-crdc-00.txt`](https://raw.githubusercontent.com/leecam/crdc/gh-pages/draft-campbell-crdc-00.txt) · [View on GitHub](https://github.com/leecam/crdc/blob/gh-pages/draft-campbell-crdc-00.txt)
+  * **RFCXML v3:** [`draft-campbell-crdc-00.xml`](https://raw.githubusercontent.com/leecam/crdc/gh-pages/draft-campbell-crdc-00.xml) · [View on GitHub](https://github.com/leecam/crdc/blob/gh-pages/draft-campbell-crdc-00.xml)
 
 ## Abstract
 
@@ -30,3 +35,5 @@ On every push and pull request, the [`.github/workflows/ietf-draft.yml`](.github
 3. Converts the rendered specification into standalone readable GitHub-Flavored Markdown (`draft-campbell-crdc-00.md`) using `pandoc`.
 4. Runs IETF `idnits` checks.
 5. Uploads the `.xml`, `.txt`, `.html`, and readable `.md` build artifacts (ready for direct upload to [IETF Datatracker Submit](https://datatracker.ietf.org/submit/)).
+6. On pushes to `main` (or `draft-*` tags), publishes the latest generated `.html`, `.md`, `.txt`, and `.xml` files to the `gh-pages` branch.
+

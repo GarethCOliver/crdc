@@ -73,3 +73,23 @@ jobs:
             ${{ steps.meta.outputs.doc_name }}.txt
             ${{ steps.meta.outputs.doc_name }}.html
             ${{ steps.meta.outputs.doc_name }}.md
+
+      - name: Publish Generated Files to gh-pages Branch
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/draft-'))
+        run: |
+          PUBLISH_DIR=$(mktemp -d)
+          for ext in xml txt html md; do
+            cp "${{ steps.meta.outputs.doc_name }}.${ext}" "$PUBLISH_DIR/"
+            cp "${{ steps.meta.outputs.doc_name }}.${ext}" "$PUBLISH_DIR/${{ steps.meta.outputs.base_name }}-latest.${ext}"
+          done
+          cp "${{ steps.meta.outputs.doc_name }}.html" "$PUBLISH_DIR/index.html"
+          touch "$PUBLISH_DIR/.nojekyll"
+
+          cd "$PUBLISH_DIR"
+          git init -b gh-pages
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Publish ${{ steps.meta.outputs.doc_name }} from ${GITHUB_SHA::7}"
+          git push --force "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" gh-pages
+
